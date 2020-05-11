@@ -50,7 +50,7 @@ class AlexNetDANN(nn.Module):
         return x
 
 
- def alexnet_dann(pretrained=False, progress=True, **kwargs):
+    def alexnet_dann(pretrained=False, progress=True, **kwargs):
     r"""AlexNet model architecture from the
     `"One weird trick..." <https://arxiv.org/abs/1404.5997>`_ paper.
 
@@ -58,15 +58,15 @@ class AlexNetDANN(nn.Module):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    model = AlexNetDANN(**kwargs)
-    if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['alexnet'],
+        model = AlexNetDANN(**kwargs)
+        if pretrained:
+            state_dict = load_state_dict_from_url(model_urls['alexnet'],
                                               progress=progress)
-        model.load_state_dict(state_dict)
+            model.load_state_dict(state_dict)
         
-    model.domainClassifier = deepcopy(model.classifier)
+        model.domainClassifier = deepcopy(model.classifier)
     
-    model.classifier[6] = nn.Linear(4096, 7)
-    model.domainClassifier[6] = nn.Linear(4096, 2)
+        model.classifier[6] = nn.Linear(4096, 7)
+        model.domainClassifier[6] = nn.Linear(4096, 2)
     
-    return model
+        return model
