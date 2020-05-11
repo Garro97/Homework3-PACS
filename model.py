@@ -5,7 +5,7 @@ from torch.hub import load_state_dict_from_url
 from copy import deepcopy
 
 
-__all__ = ['AlexNet', 'alexnet']
+__all__ = ['AlexNet_dann', 'alexnet_dann']
 
 
 model_urls = {
