@@ -2,8 +2,10 @@ import torch
 import torch.nn as nn
 from torch.hub import load_state_dict_from_url
 
+from copy import deepcopy
 
-__all__ = ['AlexNet_dann', 'alexnet_dann']
+
+__all__ = ['AlexNet', 'alexnet']
 
 
 model_urls = {
