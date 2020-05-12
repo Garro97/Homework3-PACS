@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.hub import load_state_dict_from_url
+from torch.autograd import Function
 
 from copy import deepcopy
 
@@ -11,6 +12,22 @@ __all__ = ['AlexNet_dann', 'alexnet_dann']
 model_urls = {
     'alexnet': 'https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth',
 }
+
+class ReverseLayerF(Function):
+    # Forwards identity
+    # Sends backward reversed gradients
+    @staticmethod
+    def forward(ctx, x, alpha):
+        ctx.alpha = alpha
+
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        output = grad_output.neg() * ctx.alpha
+
+        return output, None
+    
 
 
 class AlexNetDANN(nn.Module):
@@ -44,12 +61,22 @@ class AlexNetDANN(nn.Module):
         )
         self.domainClassifier = nn.Sequential()
 
-    def forward(self, x):
-        x = self.features(x)
-        x = self.avgpool(x)
-        x = torch.flatten(x, 1)
-        x = self.classifier(x)
-        return x
+    def forward(self, x, alpha=None):
+        features = self.features(x)
+        features = self.avgpool(features)
+        # Flatten the features:
+        features = torch.flatten(features, 1)
+        # If we pass alpha, we can assume we are training the discriminator
+        if alpha is not None:
+            # gradient reversal layer (backward gradients will be reversed)
+            reverse_feature = ReverseLayerF.apply(features, alpha)
+            discriminator_output = self.domainClassifier(reverse_feature)
+            return discriminator_output
+        # If we don't pass alpha, we assume we are training with supervision
+        else:
+            # do something else
+            class_outputs = self.classifier(features)
+            return class_outputs
 
 
     def alexnet_dann(pretrained=False, progress=True, **kwargs):
