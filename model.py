@@ -6,7 +6,7 @@ from torch.autograd import Function
 from copy import deepcopy
 
 
-__all__ = ['AlexNet_dann', 'alexnet_dann']
+__all__ = ['AlexNet', 'alexnet']
 
 
 model_urls = {
@@ -59,6 +59,7 @@ class AlexNetDANN(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(4096, num_classes),
         )
+        
         self.domainClassifier = nn.Sequential()
 
     def forward(self, x, alpha=None):
@@ -79,8 +80,8 @@ class AlexNetDANN(nn.Module):
             return class_outputs
 
 
-    def alexnet_dann(pretrained=False, progress=True, **kwargs):
-        model = AlexNetDANN(**kwargs)
+    def alexnet_dann(pretrained=False, progress=True):
+        model = AlexNetDANN()
         if pretrained:
             state_dict = load_state_dict_from_url(model_urls['alexnet'],
                                               progress=progress)
